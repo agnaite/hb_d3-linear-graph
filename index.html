@@ -51,7 +51,7 @@
     var diseases = Array.from(getDiseases(data));
     var deaths = [];
 
-    // make the data in format of [{id: "disease", values: [{year: 2000, count: 200}] }];
+    // format data like so [{id: "disease", values: [{year: 2000, count: 200}] }];
     for (var i=0; i<diseases.length; i++) {
       deaths.push(
         { id: diseases[i],
@@ -73,6 +73,7 @@
           j--;
         }
       }
+
     }
 
     // x.domain(d3.extent(data, function(d) { return d.year; }));
