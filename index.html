@@ -73,11 +73,11 @@
           j--;
         }
       }
-
+      deaths[i].values.sort(function(a,b) {return (a.year > b.year) ? 1 : ((b.year > a.year) ? -1 : 0);} ); 
     }
 
     // x.domain(d3.extent(data, function(d) { return d.year; }));
-    x.domain([2006, 2014]);
+    x.domain([2007, 2014]);
     y.domain([
       d3.min(deaths, function(c) { return d3.min(c.values, function(d) { return d.count; }); }),
       d3.max(deaths, function(c) { return d3.max(c.values, function(d) { return d.count; }); })
