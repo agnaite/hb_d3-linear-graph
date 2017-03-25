@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <style>
 
-    .axis--x path {
+   /* .axis--x path {
       display: none;
-    }
+    }*/
 
     .line {
       fill: none;
@@ -17,7 +17,6 @@
 </head>
 <body>
   <svg width="960" height="500"></svg>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="http://d3js.org/d3.v4.min.js"></script>
   <script>
 
@@ -57,9 +56,9 @@
         { id: diseases[i],
           values: data.map(function(d) {
             for (var j=0; j<data.length; j++) {
-              if (d["Leading Cause"] === diseases[i]) {
+              if (d["Leading Cause"] === diseases[i] && d.Deaths !== ".") {
                 return {year: parseInt(d.Year), count: parseInt(d.Deaths)};
-              } else { continue; }
+              } 
             }
           })
         });
@@ -67,16 +66,38 @@
 
     // remove all the undefineds in values arrays
     for (var i=0; i<deaths.length; i++) {
+      // console.log(i);
       for (var j=0; j<deaths[i].values.length; j++) {
         if (typeof deaths[i].values[j] !== 'object') {
           deaths[i].values.splice(j, 1);
           j--;
         }
       }
-      deaths[i].values.sort(function(a,b) {return (a.year > b.year) ? 1 : ((b.year > a.year) ? -1 : 0);} ); 
+      deaths[i].values.sort(function(a, b) {return (a.year > b.year) ? 1 : ((b.year > a.year) ? -1 : 0);} ); 
     }
 
-    // x.domain(d3.extent(data, function(d) { return d.year; }));
+    // trying to sum up all the death counts for the same year to include all genders and ethnicities
+    for (var i=0; i<deaths.length; i++) {
+      var deathsSummed = [];
+      for (var j=0; j<deaths[i].values.length; j++) {
+        var updated = false;
+
+        for (var k=0; k<deathsSummed.length; k++) {
+          if (deathsSummed[k].year == deaths[i].values[j].year) {
+            deathsSummed[k].count += deaths[i].values[j].count;
+            updated = true;
+            break;
+          }
+        }
+        if (!updated) {
+          var countSummed = { year: deaths[i].values[j].year, count: deaths[i].values[j].count}
+          deathsSummed.push(countSummed);
+        } 
+      }
+      deaths[i].values = deathsSummed;
+     
+    }
+
     x.domain([2007, 2014]);
     y.domain([
       d3.min(deaths, function(c) { return d3.min(c.values, function(d) { return d.count; }); }),
@@ -100,10 +121,10 @@
       .attr("fill", "#000")
       .text("Number of Deaths");
 
-    var death = g.selectAll(".city")
+    var death = g.selectAll(".death")
                 .data(deaths)
                 .enter().append("g")
-                .attr("class", "city");
+                .attr("class", "death");
 
     death.append("path")
         .attr("class", "line")
@@ -115,7 +136,7 @@
         .attr("transform", function(d) { return "translate(" + x(d.value.year) + "," + y(d.value.count) + ")"; })
         .attr("x", 3)
         .attr("dy", "0.35em")
-        .style("font", "10px sans-serif")
+        .style("font", "8px sans-serif")
         .text(function(d) { return d.id; });
   });
 
